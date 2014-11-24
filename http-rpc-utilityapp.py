@@ -1,7 +1,7 @@
 import json, requests, time
 from httprpccore import HTTPRPCCore
 
-# version:		1.0
+# version:		1.2
 # description:	Instructions to install: apt-get install python-request, python-json
 # 				This script tests Utility app 1.2
 # 				https://docs.google.com/a/fon.com/document/d/1TfF0BwHM1wl8lRqx5njMW3I8bIZHK7zVJKqm2jx5xZc/edit#
