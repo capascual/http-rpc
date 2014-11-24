@@ -1,7 +1,7 @@
 import json, requests, time
 from httprpccore import HTTPRPCCore
 
-# version:		1.2
+# version:		1.0
 # description:	Instructions to install: apt-get install python-request, python-json
 # 				This script tests Utility app 1.2
 # 				https://docs.google.com/a/fon.com/document/d/1TfF0BwHM1wl8lRqx5njMW3I8bIZHK7zVJKqm2jx5xZc/edit#
@@ -13,6 +13,8 @@ from httprpccore import HTTPRPCCore
 #					[ "mfgd", "get_fonmac", {} ],
 #					[ "hotspotd", "get", {"section":"main", "options":["nasid"]}],
 #					[ "wifid", "get_wiface", {"name":"private", "option":"key"} ],
+#					[ "mfgd", "get_fw_version"]
+#
 #				]
 
 #				utility_app_set = [
@@ -20,14 +22,18 @@ from httprpccore import HTTPRPCCore
 #					[ "wifid", "set_wiface", {"name" :"private", "ssid": test_private_SSID , "encryption":"wpa2", "key": test_private_wpakey, "mode": "bgn"} ],
 #					[ "anet", "wiclirouted", {"proto":"dhcp", "ssid":test_private_SSID} ],
 #					[ "anet", "wiclone", {"ssid" :test_private_SSID, "encryption":"psk2", "key":test_private_wpakey}],
-#					[ "anet", "ethrouted", {"proto":"dhcp"} ]
+#					[ "anet", "ethrouted", {"proto":"dhcp"} ],
+#					[ "anet", "doeasysetup", {"netmode":"ethbridged", "privssid":"Gramofon_CMP"}],
+#					[ "mfgd", "reset_defaults"]
+#					[ "mfdg", "reboot"}]
 #				]
 
 def get_login_sid(my_httprpc):
+	#Manual request for sessiond ID (sid)
 	#curl -i -H "Accept: application/json" -X POST  -d '{ "jsonrpc": "2.0", "id": 1, "method": "call", "params": [ "session", "login", { "username": "admin", "password": "admin" } ] }' http://192.168.10.1/api/00000000000000000000000000000000
 
-	#login_data = [ { "jsonrpc": "2.0", "id": 1, "method": "call", "params": [ "session", "login", { "username": "admin", "password": "admin" } ] } ]
-	login_data = my_httprpc.build_http_rpc_data( [ "session", "login", { "username": "admin", "password": "admin" } ])
+	login_data = [ { "jsonrpc": "2.0", "id": 1, "method": "call", "params": [ "session", "login", { "username": "admin", "password": "admin" } ] } ]
+	#login_data = my_httprpc.build_http_rpc_data( [ "session", "login", { "username": "admin", "password": "admin" } ])
 	try:
 		resp = requests.post(url=my_httprpc.build_http_rpc_url(0),
 					headers={'content-type': 'application/json'},
@@ -38,22 +44,20 @@ def get_login_sid(my_httprpc):
 	except requests.HTTPError, e:
 		print 'HTTP ERROR %s occured' % e.code
 
+test_private_ssid="test_priv_ssid_CMP"
+test_private_wpakey="fonfonfon"
 
+test_master_ap_ssid="FoneraUSB"
 
-test_private_ssid="test_priv_ssid"
-test_private_wpakey="12345678"
+test_master_ap_wpakey="fonfonfon2"
 
-test_master_ap_ssid="thisssiddoesnotexists"
-test_master_ap_wpakey="12345678"
-
-test_gramoname="auto_test_httrpc_gramoname"
-
+test_gramoname="Gramofon_CMP"
 
 
 def test_anetd_setgramofonname(sid, test_gramoname):
 	data = [ "anet", "set_gramofonname", {"mdnsname" :test_gramoname, "spotifyname": test_gramoname}]
-	# print data
-	# print '\t Response: ' + str(my_httprpc.run_httprpc_call(data, sid))
+	#print data
+	print '\t Response: ' + str(my_httprpc.run_httprpc_call(data, sid))
 
 def test_anetd_set_wiface(sid, ssid, wpakey):
 	data = [ "wifid", "set_wiface", {"name" :"private", "ssid": ssid , "encryption":"wpa2", "key": wpakey, "mode": "bgn"} ]
@@ -64,7 +68,7 @@ def test_anetd_set_ethrouted(sid):
 	data = [ "anet", "ethrouted", {"proto":"dhcp"}]
 	# print data
 	# print '\t Response: ' + str(my_httprpc.run_httprpc_call(data, sid))
-
+	
 def test_anetd_set_wiclirouted(sid, masterssid, masterwpakey):
 	data = [ "anet", "wiclirouted", {"proto":"dhcp", "ssid": "Gramofon_3e84b4", "key":masterwpakey, "encryption":"psk2"} ]
 	#	"params":["anet","wclirouted",{"proto":"dhcp","ssid":"Gramofon_3e8e24","encryption":"psk2","key":"12345678","freq":"2412","mtu":1500}]}:
@@ -75,6 +79,21 @@ def test_anetd_set_wicliclone(sid, masterssid, masterwpakey):
 	data = [ "anet", "wiclone", {"ssid" :masterssid, "encryption":"psk2", "key":masterwpakey}]
 	# print data
 	# print '\t Response: ' + str(my_httprpc.run_httprpc_call(data, sid))
+	
+def test_anetd_set_doeasysetup(sid):
+	data = [ "anet", "doeasysetup", {"netmode":"ethbridged","privssid":"Gramofon:CMP"}]
+	# print data
+	print '\t Response: ' + str(my_httprpc.run_httprpc_call(data, sid))
+
+def test_mfgd_reset_defaults(sid):
+	data = [ "mfgd", "reset_defaults" ]
+	# print data
+	print '\t Response: ' + str(my_httprpc.run_httprpc_call(data, sid))
+	
+def test_mfgd_reboot(sid):
+	data = [ "mfgd", "reboot" ]
+	# print data
+	print '\t Response: ' + str(my_httprpc.run_httprpc_call(data, sid))
 
 def test_anetd_status(sid):
 	data = [ "anet", "status", {} ];
@@ -125,12 +144,23 @@ def test_anetd_get_wifaceprivate(sid):
 	print data
 	print '\t Response: ' + str(my_httprpc.run_httprpc_call(data, sid))
 	# Response: [{u'jsonrpc': u'2.0', u'id': 1, u'result': [0, {u'key': u'cqscsrgbtd'}]}]
+	
+def test_mfgd_get_fw_version(sid):
+	data = [ "mfgd", "get_fw_version" ]
+	print data
+	print '\t Response: ' + str(my_httprpc.run_httprpc_call(data, sid))
 
-
-# get login sid
 my_httprpc = HTTPRPCCore("192.168.10.1")
+# get login sid
 sid = get_login_sid(my_httprpc)
 
+print "Initializing test..."
+#TEST
+test_anetd_get_wifaceprivate(sid)
+#test_mfgd_reboot(sid)
+print "Test terminated"
+
+'''
 # get API
 test_anetd_status(sid)
 time.sleep(1)
@@ -146,6 +176,7 @@ test_anetd_get_hotspotdmac(sid)
 time.sleep(1)
 test_anetd_get_wifaceprivate(sid)
 time.sleep(1)
+'''
 
 '''
 # set API

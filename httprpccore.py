@@ -42,23 +42,21 @@ class HTTPRPCCore:
 			# tuple
 			elif type(val).__name__ in ('tuple'):
 				print_json(val)
-
 		return
 
-'''
 	def search_key_in_json(self, json, searchkey):
 		for key, val in json.iteritems():
-			print "1) " + str(key) + " - " + str(val)
+			#print "1) " + str(key) + " - " + str(val)
 			if searchkey == key:
+				print searchkey + ":" + val
 				return val
 
 			# list
 			if type(val).__name__ in ('list', 'dict'):
 				for item in val:
 					if searchkey == item:
+						print searchkey + ":" + val
 						return val
 					else:
 						if type(item).__name__ in ('dict', 'list'):
 							return self.search_key_in_json(item, searchkey)
-'''
-
